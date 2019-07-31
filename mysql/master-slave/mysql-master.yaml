@@ -1,0 +1,60 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  labels:
+    app: mysql-master
+  name: mysql-master
+spec:
+  serviceName: mysql-master-service
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: mysql-master
+  template:
+    metadata:
+      labels:
+        app: mysql-master
+        version: v1
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MYSQL_REPLICATION_USER
+          value: "repl"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_REPLICATION_PASSWORD
+          value: "repl"
+        image: calvindai/mysql-master:1.0
+        imagePullPolicy: Always
+        name: mysql
+        volumeMounts:
+        - name: mysql-master-data
+          mountPath: /var/lib/mysql
+        ports:
+        - containerPort: 3306
+          name: mysql
+          protocol: TCP
+        - containerPort: 9779
+          name: prometheus
+          protocol: TCP
+        - containerPort: 8778
+          name: jolokia
+          protocol: TCP
+        securityContext:
+          privileged: false
+  volumeClaimTemplates:
+  - metadata:
+       name: mysql-master-data
+       annotations:
+          volume.beta.kubernetes.io/storage-class: "nfs"
+    spec:
+       accessModes:
+       - ReadWriteOnce
+       resources:
+          requests:
+            storage: 3Gi 

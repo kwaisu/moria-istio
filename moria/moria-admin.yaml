@@ -1,0 +1,56 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+   labels:
+     app: moria-cloud-admin
+   name: moria-cloud-admin
+spec:
+   replicas: 1
+   revisionHistoryLimit: 2
+   selector:
+      matchLabels:
+         app: moria-cloud-admin
+   template:
+      metadata:
+         labels:
+           app: moria-cloud-admin
+      spec:
+        containers:
+        - env:
+          - name: EUREKA_USER
+            value: macula
+          - name: EUREKA_PASSWORD
+            value: macula2019
+          - name: EUREKA_PORT
+            value: "8761"
+          - name: EUREKA_HOST
+            value: "eureka"
+          - name: REDIS_HOST
+            value: "redis-single.redis.svc.cluster.local"
+          - name: REDIS_PASSWORD
+            value: "moria"
+          - name: PROFILE_ACTIVE
+            value: "dev"
+          - name: ZIPKIN_SERVER
+            value: "zipkin-service"
+          - name: SERVER_PORT
+            value: "8080"
+          image: calvindai/moria-cloud-admin:1.0
+          imagePullPolicy: Always
+          name: admin
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 18
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10 
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP

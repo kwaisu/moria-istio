@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+   labels:
+     app: moria-cloud-workflow
+   name: moria-cloud-workflow
+spec:
+   replicas: 1
+   revisionHistoryLimit: 2
+   selector:
+      matchLabels:
+         app: moria-cloud-workflow
+   template:
+      metadata:
+         labels:
+           app: moria-cloud-workflow
+      spec:
+        containers:
+        - env:
+          - name: EUREKA_USER
+            value: macula
+          - name: EUREKA_PASSWORD
+            value: macula2019
+          - name: EUREKA_PORT
+            value: "8761"
+          - name: EUREKA_HOST
+            value: "eureka"
+          - name: PROFILE_ACTIVE
+            value: "dev"
+          - name: SERVER_PORT
+            value: "8080"
+          image: calvindai/moria-cloud-workflow:1.0
+          imagePullPolicy: Always
+          name: workflow
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 20
+         

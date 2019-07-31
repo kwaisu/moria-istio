@@ -1,0 +1,64 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+   labels:
+     app: moria-cloud-gateway
+   name: moria-cloud-gateway
+spec:
+   replicas: 1
+   revisionHistoryLimit: 2
+   selector:
+      matchLabels:
+         app: moria-cloud-gateway
+   template:
+      metadata:
+         labels:
+           app: moria-cloud-gateway
+      spec:
+        containers:
+        - env:
+          - name: EUREKA_USER
+            value: macula
+          - name: EUREKA_PASSWORD
+            value: macula2019
+          - name: EUREKA_PORT
+            value: "8761"
+          - name: EUREKA_HOST
+            value: "eureka"
+          - name: REDIS_HOST
+            value: "redis-single.redis.svc.cluster.local"
+          - name: REDIS_PASSWORD
+            value: "moria"
+          - name: ZIPKIN_SERVER
+            value: "zipkin-service"
+          - name: spring.profiles.active
+            value: "dev"
+          - name: SERVER_PORT
+            value: "8080"
+          image: calvindai/moria-cloud-gateway:1.0
+          imagePullPolicy: Always
+          name: gateway
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          - containerPort: 9779
+            name: prometheus
+            protocol: TCP
+          - containerPort: 8778
+            name: jolokia
+            protocol: TCP
+          readinessProbe:
+             httpGet:
+               path: /health
+               port: 8080
+               scheme: HTTP
+             initialDelaySeconds: 30
+          livenessProbe:
+             httpGet:
+               path: /health
+               port: 8080
+               scheme: HTTP
+             initialDelaySeconds: 30
+          securityContext:
+            privileged: false

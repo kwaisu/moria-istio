@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+   name: moria-cloud-front
+spec:
+   type: NodePort
+   selector:
+     app: moria-cloud-front
+   ports:
+   - port: 80
+     name: http
+     

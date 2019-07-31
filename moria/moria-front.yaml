@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    labels:
+      app: moria-cloud-front
+    name: moria-cloud-front
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: moria-cloud-front
+   template:
+     metadata:
+       labels:
+         app: moria-cloud-front
+     spec:
+       containers:
+       - env:
+         - name: SERVER_API
+           value: "moria-cloud-gateway:8080"
+         image: calvindai/moria-cloud-dashboard:1.0
+         imagePullPolicy: Always
+         name: front
+         livenessProbe:
+           httpGet: 
+             path: /
+             port: 80
+             scheme: HTTP
+           initialDelaySeconds: 20
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 80
+             scheme: HTTP
+           initialDeplaySeconds: 20
+         ports:
+         - containerPort: 80
+           name: http
+           protocol: TCP
+       

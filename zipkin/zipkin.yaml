@@ -1,0 +1,44 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+    name: zipkin-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+         app: zipkin-server
+    spec:
+      containers:
+        - name: zipkin-server
+          env:
+          - name: STORAGE_TYPE
+            value: "mysql"
+          - name: MYSQL_DB
+            value: "zipkin"
+          - name: MYSQL_USER
+            value: "root"
+          - name: MYSQL_PASS
+            value: "root"
+          - name: MYSQL_HOST
+            value: "mysql-master-service"
+          - name: MYSQL_TCP_PORT
+            value: "3306"
+          image: openzipkin/zipkin
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+              httpGet: 
+                path: /health
+                port: 9411
+                scheme: HTTP
+              initialDelaySeconds: 28
+          ports:
+           - containerPort: 9411
+             name: zipkin
+             protocol: TCP 
+          readinessProbe:
+              httpGet:
+                path: /health
+                port: 9411
+                scheme: HTTP
+              initialDelaySeconds: 28

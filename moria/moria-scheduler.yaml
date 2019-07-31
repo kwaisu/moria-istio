@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+   labels:
+     app: moria-scheduler
+   name: moria-scheduler
+spec:
+   replicas: 1
+   revisionHistoryLimit: 2
+   selector:
+      matchLabels:
+         app: moria-scheduler
+   template:
+      metadata:
+         labels:
+           app: moria-scheduler
+      spec:
+        containers:
+        - env:
+          - name: PROFILE_ACTIVE
+            value: "dev"
+          - name: SERVER_PORT
+            value: "8080"
+          image: calvindai/moria-cloud-scheduler:1.0
+          imagePullPolicy: Always
+          name: scheduler
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
